@@ -1,0 +1,7 @@
+*.lock
+target/
+.idea/
+.svn/
+*.iml
+/node_modules
+*.properties
