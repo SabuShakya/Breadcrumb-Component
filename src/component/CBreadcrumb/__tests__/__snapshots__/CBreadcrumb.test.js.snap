@@ -8,14 +8,14 @@ exports[`CBreadcrumb component tests Snapshot Testing if renders CBreadcrumb com
   <BreadcrumbItem
     active={false}
     href="#/home"
-    key="breadcrumb0"
+    key="breadcrumb1"
     test-id="breadcrumbItem1"
   >
     Home
   </BreadcrumbItem>
   <BreadcrumbItem
     active={true}
-    key="breadcrumb1"
+    key="breadcrumb2"
     test-id="breadcrumbItem2"
   >
     General Setup

@@ -9,11 +9,11 @@ class CBreadcrumb extends PureComponent {
         currentLocation: ""
     };
 
-    setCurrentLocation = (path) => {
+    setCurrentLocation = path => {
         this.setState({currentLocation: path});
     };
 
-    setRoutes = (routes) => {
+    setRoutes = routes => {
         this.setState({routes: routes});
     };
 
@@ -22,17 +22,16 @@ class CBreadcrumb extends PureComponent {
      * @returns {string[]}
      */
     getPathsToInclude = () => {
-        let currentLocation = this.state.currentLocation;
+        let currentLocation = this.state.currentLocation !== "" ?
+            this.state.currentLocation : this.props.location.pathname;
         // GET AVAILABLE PATHS IN CURRENT PAGE URL
         let pathsToInclude = ((currentLocation).split('/'));
 
-        // REMOVE THE FIRST EMPTY ELEMENT
+        // REMOVE THE FIRST EMPTY ELEMENT FROM ARRAY
         pathsToInclude.shift();
 
         // IF ROUTE IS NOT 'home' ADD 'home' AS FIRST PATH
-        if (pathsToInclude[0] !== "home") {
-            pathsToInclude.unshift("home");
-        }
+        pathsToInclude[0] !== "home" && pathsToInclude.unshift("home");
 
         // REMOVE THE END PATHNAME
         pathsToInclude.splice(pathsToInclude.length - 1, 1);
@@ -42,7 +41,7 @@ class CBreadcrumb extends PureComponent {
             pathsToInclude[i] = "/" + pathsToInclude[i];
         }
 
-        //INCLUDE THE FULL PATH TO CURRENT PAGE
+        //FINALLY INCLUDE THE FULL PATH TO CURRENT PAGE
         pathsToInclude.push(currentLocation);
 
         return pathsToInclude;
@@ -56,26 +55,21 @@ class CBreadcrumb extends PureComponent {
     addRoutesByPathsToInclude = (pathsToInclude) => {
         let routes = [];
         pathsToInclude.forEach(value => {
-            routes = routes.concat(this.props.breadcrumbData.filter(data => {
-                    if (data.path === value)
-                        return data;
-                })
-            );
+            routes = routes.concat(this.props.breadcrumbData.filter(data =>
+                data.path === value
+            ));
         });
         return routes;
     };
 
-    filterRoutesUptoCurrentPage = () => {
+    filterAndSetRoutesUptoCurrentPage = () => {
         this.setRoutes(this.addRoutesByPathsToInclude(this.getPathsToInclude()));
     };
 
     setCurrentLocationAndFilterRoutes = async (path) => {
-        if (path === undefined) {
-            await this.setCurrentLocation(this.props.location.pathname);
-        } else {
-            await this.setCurrentLocation(path);
-        }
-        this.filterRoutesUptoCurrentPage();
+        path === undefined ? await this.setCurrentLocation(this.props.location.pathname)
+            : await this.setCurrentLocation(path);
+        this.filterAndSetRoutesUptoCurrentPage();
     };
 
     componentDidMount() {
@@ -99,16 +93,19 @@ class CBreadcrumb extends PureComponent {
         :
         {'active': true};
 
-    getBreadcrumbItemProps = (breadcrumb, index) => ({
-        'key': "breadcrumb" + index,
-        'test-id': "breadcrumbItem" + breadcrumb.id,
-        'as': this.props.itemAs,
-        'title': this.props.title,
-        'target': this.props.target,
-        'bsPrefix': this.props.itemBsPrefix,
-        'children': this.props.itemChildren,
-        ...this.checkIfBreadcrumbItemIsLast(breadcrumb, index)
-    });
+    getBreadcrumbItemProps = (breadcrumb, index) => {
+        const {itemAs, title, target, itemBsPrefix, itemChildren} = this.props;
+        return ({
+            'key': "breadcrumb" + breadcrumb.id,
+            'test-id': "breadcrumbItem" + breadcrumb.id,
+            'as': itemAs,
+            'title': title,
+            'target': target,
+            'bsPrefix': itemBsPrefix,
+            'children': itemChildren,
+            ...this.checkIfBreadcrumbItemIsLast(breadcrumb, index)
+        });
+    };
 
     getBreadcrumbItems = (breadcrumb, index) =>
         <Breadcrumb.Item
@@ -118,13 +115,14 @@ class CBreadcrumb extends PureComponent {
         </Breadcrumb.Item>;
 
     render() {
+        const {as, label, listProps, bsPrefix, children} = this.props;
         return (
             <Breadcrumb
-                as={this.props.as}
-                label={this.props.label}
-                listProps={this.props.listProps}
-                bsPrefix={this.props.bsPrefix}
-                children={this.props.children}
+                as={as}
+                label={label}
+                listProps={listProps}
+                bsPrefix={bsPrefix}
+                children={children}
             >
                 {this.state.routes.map((breadcrumb, index) => (
                     this.getBreadcrumbItems(breadcrumb, index)
@@ -149,4 +147,10 @@ React.propTypes = {
     itemChildren: Proptypes.array
 };
 
+/**
+ * 'withRouter' IS A HIGHER ORDER COMPONENT PROVIDED BY 'react-router-dom'.
+ * 'withRouter' WILL PASS UPDATED 'match', 'location', and 'history' PROPS
+ * TO THE WRAPPED COMPONENT WHENEVER IT RENDERS.
+ * IN BREADCRUMB COMPONENT IT IS USED TO DETECT THE ROUTE CHANGE ALONG WITH 'componentDidUpdate' LIFECYCLE METHOD.
+ */
 export default withRouter(CBreadcrumb);

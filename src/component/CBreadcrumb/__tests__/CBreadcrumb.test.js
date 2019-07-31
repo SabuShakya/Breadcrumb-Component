@@ -5,6 +5,7 @@ expect.addSnapshotSerializer(enzymeSerializer);
 
 describe('CBreadcrumb component tests', () => {
     let wrapper, instance;
+
     const dataForBreadCrumb = [
         {
             id: '1',
@@ -17,11 +18,15 @@ describe('CBreadcrumb component tests', () => {
             path: '/generalSetup'
         }];
 
+    let setWrapperProps = (cWrapper, propsObject) => {
+        cWrapper.setProps(propsObject);
+    };
+
     describe('Breadcrumb Component Tests', () => {
 
         beforeEach(() => {
             wrapper = shallow(<CBreadcrumb.WrappedComponent/>);
-            wrapper.setProps({breadcrumbData: []})
+            setWrapperProps(wrapper, {breadcrumbData: []});
         });
 
         test('if CBreadcrumb component is defined', () => {
@@ -29,8 +34,7 @@ describe('CBreadcrumb component tests', () => {
         });
 
         test('if renders Breadcrumb component', () => {
-            const breadcrumbComponent = wrapper.find('Breadcrumb');
-            expect(breadcrumbComponent.length).toEqual(1);
+            expect(wrapper.find('Breadcrumb').length).toEqual(1);
         });
 
         test('if Breadcrumb component contains all required props', () => {
@@ -53,7 +57,7 @@ describe('CBreadcrumb component tests', () => {
         beforeEach(() => {
             wrapper = mount(<CBreadcrumb.WrappedComponent/>);
             instance = wrapper.instance();
-            wrapper.setProps({breadcrumbData: dataForBreadCrumb});
+            setWrapperProps(wrapper, {breadcrumbData: dataForBreadCrumb});
         });
 
         afterAll(() => {
@@ -69,10 +73,11 @@ describe('CBreadcrumb component tests', () => {
         });
 
         test('if state`s property currentLocation is set after componentDidMount', () => {
-            wrapper.setProps({
+            setWrapperProps(wrapper, {
                 location: {
                     pathname: '/generalSetup'
-                }, history: {
+                },
+                history: {
                     location: {
                         pathname: ''
                     }
@@ -85,15 +90,10 @@ describe('CBreadcrumb component tests', () => {
 
         test('if routes are filtered upto current location and ' +
             'state`s property routes is set after componentDidMount ', async () => {
-            jest.spyOn(instance, 'setRoutes');
-            wrapper.setProps({
-                location: {
-                    pathname: '/generalSetup'
-                },
-            });
-            wrapper.update();
+            // jest.spyOn(instance, 'setRoutes');
+            setWrapperProps(wrapper, {location: {pathname: '/generalSetup'}});
             await instance.componentDidMount();
-            // expect(instance.setRoutes).toHaveBeenCalled();
+            // wrapper.update();
             expect(wrapper.state('routes').length).not.toBe(0);
         });
 
@@ -119,7 +119,7 @@ describe('CBreadcrumb component tests', () => {
         beforeEach(async () => {
             wrapper = shallow(<CBreadcrumb.WrappedComponent/>);
             instance = wrapper.instance();
-            wrapper.setProps({
+            setWrapperProps(wrapper, {
                 breadcrumbData: dataForBreadCrumb,
                 location: {
                     pathname: '/generalSetup'
@@ -130,7 +130,7 @@ describe('CBreadcrumb component tests', () => {
         });
 
         test('if renders BreadcrumbItem component', () => {
-            expect(wrapper.find('[test-id="breadcrumbItem1"]').length).toBeGreaterThanOrEqual(1);
+            expect(wrapper.find('[test-id="breadcrumbItem1"]').length).toBe(1);
         });
 
         test('if BreadcrumbItem component shows name', () => {
@@ -160,7 +160,8 @@ describe('CBreadcrumb component tests', () => {
                 'title',
                 'target',
                 'bsPrefix',
-                'children'
+                'children',
+                'href'
             ];
 
             let propsAvailableForBreadcrumbItem = Object.keys(wrapper.find('[test-id="breadcrumbItem1"]').props());
