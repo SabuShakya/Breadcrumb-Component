@@ -9,7 +9,7 @@ describe('CBreadcrumb component tests', () => {
         {
             id: '1',
             name: 'Home',
-            path: '/'
+            path: '/home'
         },
         {
             id: '2',
@@ -93,6 +93,7 @@ describe('CBreadcrumb component tests', () => {
             });
             wrapper.update();
             await instance.componentDidMount();
+            // expect(instance.setRoutes).toHaveBeenCalled();
             expect(wrapper.state('routes').length).not.toBe(0);
         });
 
@@ -104,7 +105,7 @@ describe('CBreadcrumb component tests', () => {
                 },
                 history: {
                     location: {
-                        pathname: '/'
+                        pathname: '/home'
                     }
                 }
             });
@@ -136,21 +137,17 @@ describe('CBreadcrumb component tests', () => {
             expect(wrapper.find('[test-id="breadcrumbItem1"]').text()).not.toBe('');
         });
 
-        test('if BreadcrumbItem components except last has Link Component', () => {
-            expect(wrapper.find('[test-id="breadcrumbItem1"]').children()).toBeDefined();
+        test('if  BreadcrumbItem components except last has href with value', () => {
+            expect(wrapper.find('[test-id="breadcrumbItem1"]').prop('href')).not.toBe('');
         });
-
-        // test('if  BreadcrumbItem components except last has href with value', () => {
-        //     expect(wrapper.find('[test-id="breadcrumbItem1"]').prop('href')).not.toBe('');
-        // });
 
         test('if last  BreadcrumbItem component  defined', () => {
             expect(wrapper.find('[test-id="breadcrumbItem2"]').length).toBe(1);
         });
 
-        // test('if last BreadcrumbItem component has no href', () => {
-        //     expect(wrapper.find('[test-id="breadcrumbItem2"]').prop('href')).not.toBeDefined();
-        // });
+        test('if last BreadcrumbItem component has no href', () => {
+            expect(wrapper.find('[test-id="breadcrumbItem2"]').prop('href')).not.toBeDefined();
+        });
 
         test('if last BreadcrumbItem component has prop active', () => {
             expect(wrapper.find('[test-id="breadcrumbItem2"]').prop('active')).toBeTruthy();

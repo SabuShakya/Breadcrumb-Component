@@ -4,7 +4,6 @@ import Breadcrumb from "react-bootstrap/Breadcrumb";
 import {withRouter} from 'react-router-dom';
 
 class CBreadcrumb extends PureComponent {
-
     state = {
         routes: [],
         currentLocation: ""
@@ -18,39 +17,56 @@ class CBreadcrumb extends PureComponent {
         this.setState({routes: routes});
     };
 
-    filterRoutesUptoCurrentPage = () => {
-        let routes = [];
+    /**
+     * GETS ARRAY OF PATH(URL) UPTO CURRENT PAGE
+     * @returns {string[]}
+     */
+    getPathsToInclude = () => {
         let currentLocation = this.state.currentLocation;
+        // GET AVAILABLE PATHS IN CURRENT PAGE URL
+        let pathsToInclude = ((currentLocation).split('/'));
 
-        if (currentLocation !== '/') {
-            //GET AVAILABLE PATHS IN CURRENT PAGE URL
-            let pathsToInclude = ((currentLocation).split('/'));
-            //REMOVE THE END PATHNAME
-            pathsToInclude.splice(pathsToInclude.length - 1, 1);
-            //INCLUDE '/' IN EACH PATHNAME
-            for (let i = 0; i < pathsToInclude.length; i++) {
-                pathsToInclude[i] = "/" + pathsToInclude[i];
-            }
-            //INCLUDE THE FULL PATH TO CURRENT PAGE
-            pathsToInclude.push(currentLocation);
+        // REMOVE THE FIRST EMPTY ELEMENT
+        pathsToInclude.shift();
 
-            pathsToInclude.forEach(value => {
-                routes = routes.concat(this.props.breadcrumbData.filter(route => {
-                        if (route.path === value)
-                            return route;
-                    })
-                )
-            });
-            this.setRoutes(routes);
-        } else {
-            //For route "/"
-            let currentLocation = this.state.currentLocation;
-            routes = this.props.breadcrumbData.filter(route => {
-                if (route.path === currentLocation)
-                    return route;
-            });
-            this.setRoutes(routes);
+        // IF ROUTE IS NOT 'home' ADD 'home' AS FIRST PATH
+        if (pathsToInclude[0] !== "home") {
+            pathsToInclude.unshift("home");
         }
+
+        // REMOVE THE END PATHNAME
+        pathsToInclude.splice(pathsToInclude.length - 1, 1);
+
+        //INCLUDE '/' IN EACH PATHNAME
+        for (let i = 0; i < pathsToInclude.length; i++) {
+            pathsToInclude[i] = "/" + pathsToInclude[i];
+        }
+
+        //INCLUDE THE FULL PATH TO CURRENT PAGE
+        pathsToInclude.push(currentLocation);
+
+        return pathsToInclude;
+    };
+
+    /**
+     *
+     * @param pathsToInclude
+     * @returns {Array}
+     */
+    addRoutesByPathsToInclude = (pathsToInclude) => {
+        let routes = [];
+        pathsToInclude.forEach(value => {
+            routes = routes.concat(this.props.breadcrumbData.filter(data => {
+                    if (data.path === value)
+                        return data;
+                })
+            );
+        });
+        return routes;
+    };
+
+    filterRoutesUptoCurrentPage = () => {
+        this.setRoutes(this.addRoutesByPathsToInclude(this.getPathsToInclude()));
     };
 
     setCurrentLocationAndFilterRoutes = async (path) => {
@@ -79,7 +95,7 @@ class CBreadcrumb extends PureComponent {
     }
 
     checkIfBreadcrumbItemIsLast = (breadcrumb, index) => index !== this.state.routes.length - 1 ?
-        {}
+        {'href': "#" + breadcrumb.path}
         :
         {'active': true};
 
@@ -93,15 +109,6 @@ class CBreadcrumb extends PureComponent {
         'children': this.props.itemChildren,
         ...this.checkIfBreadcrumbItemIsLast(breadcrumb, index)
     });
-
-    addLinkIfNotLastItem = (breadcrumb, index) => index !== this.state.routes.length - 1 ?
-        <Link to={breadcrumb.path}>
-            {breadcrumb.name}
-        </Link>
-        :
-        <>
-            {breadcrumb.name}
-        </>;
 
     getBreadcrumbItems = (breadcrumb, index) =>
         <Breadcrumb.Item
